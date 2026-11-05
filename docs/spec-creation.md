@@ -17,9 +17,9 @@ The skill is [.claude/skills/draft-spec/SKILL.md](../.claude/skills/draft-spec/S
 1. Make sure you are on a current checkout of `main` with the accepted intent.
 2. Run `/draft-spec <change-slug>`, for example `/draft-spec claims-status-self-service`. Or say "draft the spec for claims-status-self-service". With no slug, Claude lists accepted intents that have no spec yet.
 3. Claude checks the gate, reads the intent and the codebase, finds and applies the organization's policy skills, and writes `intent/<change-slug>/spec.md`.
-4. Claude reports back, with the areas of concern first, what it assumed, and what the product owner must decide.
-5. Correct anything misunderstood. Claude applies the corrections to the same file.
-6. Ask Claude to commit it on a branch `spec/<change-slug>` and open a PR. Git records the author and timestamp.
+4. Claude commits `spec.md` on a branch `spec/<change-slug>` and opens a PR, in the same turn and before it reports back, so the spec is never only a local file. Git records the author and timestamp.
+5. Claude reports back with the PR link, the areas of concern first, what it assumed, and what the product owner must decide.
+6. Correct anything misunderstood. Claude applies the corrections to the same file, as further commits on the same PR.
 
 ## What Claude does and doesn't do
 
@@ -32,6 +32,22 @@ The skill is [.claude/skills/draft-spec/SKILL.md](../.claude/skills/draft-spec/S
 | Marks unknowns "not yet identified" and carries open questions forward | Invent systems, numbers or states to fill gaps |
 | Proposes the smallest scope that meets the intent | Break the work into tasks. That is the plan in Stage 3 |
 | Refuses to overwrite an existing `spec.md` | Replace a reviewed spec wholesale |
+
+## What enforces the gate
+
+The skill's gate (step 2) is advisory: nothing forces a session to follow it. Two deterministic checks run the same script, [.github/scripts/check-spec-gate.sh](../.github/scripts/check-spec-gate.sh), so the skill, the hook and CI cannot disagree about the rule. It passes only if the intent is on `main` with `Status: accepted`, the working copy says accepted too, and the working copy is exactly the text on `main`.
+
+| Where | When | Effect |
+|---|---|---|
+| Hook [.claude/hooks/spec-gate.sh](../.claude/hooks/spec-gate.sh), registered in [.claude/settings.json](../.claude/settings.json) | Before any Edit or Write to `intent/<slug>/spec.md` | Blocks the write and tells Claude why |
+| `intent-status` workflow ([.github/workflows/intent-status.yml](../.github/workflows/intent-status.yml)) | Every pull request and every push to `main` | Fails if a changed spec's intent is not accepted on the PR's base, or differs from it |
+
+Limits:
+
+- **The hook does not see a spec written by a shell command.** The PR check catches that.
+- **The hook needs `jq`.** Without it the hook warns and does not block.
+- **The PR check only stops a merge once `intent-status` is a required check.** That needs branch protection on `main`, which is not set up (see [intent-approval.md](intent-approval.md#branch-protection-settings)).
+- **What has been tested.** The script was run against six states in a scratch repo and against the real repo. The hook was run with simulated tool input. It has not yet been seen firing in a live session, and the workflow step has not yet run on GitHub.
 
 ## What goes in the spec
 
@@ -70,7 +86,7 @@ Then:
 
 - **No enforcement that `spec.md` is accepted before Stage 3.** The `intent-status` check covers `intent.md` only. The same check could be extended to `spec.md`, which needs a stable `Status` line the script can read.
 - **Not automated.** The lesson's next step is a non-interactive job that fires when an intent is merged and opens the spec PR. That needs a remote, a CI secret for Claude access, and the policy skills available to the job. Run it by hand first.
-- **The skill has not been exercised end to end on an accepted intent.** The gate was tested only against the current draft, which it correctly rejects.
+- **The skill has been run end to end once**, on `claims-status-self-service` (PRs #1 and #2). That is one run, not a track record.
 
 ## How it is measured
 

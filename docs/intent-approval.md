@@ -29,7 +29,7 @@ The product owner can run `/accept-intent <change-slug>` ([.claude/skills/accept
 1. **Claude's readiness check passes.** Claude checks the intent against the table below and reports what is missing, citing the line.
 2. **The product owner explicitly says yes**, in the conversation, after seeing the result.
 
-Claude never accepts on its own and never merges. After the yes it sets `Status: accepted` on a branch, commits, and opens the PR if there is a remote. The product owner still merges it, and the merge is the decision.
+Claude never accepts on its own and never merges. Every edit it makes to the intent goes into a PR before the turn ends, as a draft PR until the product owner says yes, so nothing is left in a working copy. After the yes it sets `Status: accepted` on the same branch, marks the PR ready, and stops. The product owner still merges it, and the merge is the decision.
 
 | # | Check | Kind |
 |---|---|---|
@@ -74,8 +74,8 @@ Git does not enforce approval by default. Three pieces make the rule hold:
 | Piece | Where | State |
 |---|---|---|
 | The product owner is code owner of `intent/` | [.github/CODEOWNERS](../.github/CODEOWNERS) | Written, but the owner line is commented out until the product owner's GitHub username or team is filled in. **Until then, nothing requires their review.** |
-| An `intent-status` check fails unless every changed intent is `Status: accepted` | [.github/workflows/intent-status.yml](../.github/workflows/intent-status.yml), [.github/scripts/check-intent-status.sh](../.github/scripts/check-intent-status.sh) | Written. The script is tested locally. The workflow runs once the repo is on GitHub. |
-| Branch protection on `main` | GitHub repository settings | **Not set up.** It needs a remote and a repo admin. Without it, the first two pieces can be bypassed. |
+| An `intent-status` check fails unless every changed intent is `Status: accepted` | [.github/workflows/intent-status.yml](../.github/workflows/intent-status.yml), [.github/scripts/check-intent-status.sh](../.github/scripts/check-intent-status.sh) | Written and running. The workflow passed on PRs #1 and #2 (2026-11-05). It also checks specs, see [enforcement.md](enforcement.md). |
+| Branch protection on `main` | GitHub repository settings | **Not set up.** GitHub's API reports "Branch not protected" (checked 2026-11-05). It needs a repo admin. Without it, the first two pieces can be bypassed. PRs #1 and #2 were merged by the account that opened them, with no review recorded. |
 
 ### Branch protection settings
 
@@ -91,7 +91,7 @@ Notes:
 - The code owner needs write access to the repo.
 - GitHub does not let a PR author approve their own PR. If the product owner writes an intent, a second code owner has to approve it.
 - The `intent-status` workflow has no path filter on purpose. A required check that is filtered out never reports, and it would leave unrelated PRs waiting.
-- This repo currently has no remote, so there is nowhere to open a PR. Until one is added, merging locally records an author and timestamp but not a separate reviewer.
+- This repo has a remote (`origin`, on GitHub), and PRs are opened and merged there. Until `CODEOWNERS` and branch protection are set, the merge records who merged and when, but nothing requires a separate reviewer.
 
 ## How the pieces work together
 
@@ -103,4 +103,4 @@ Notes:
 
 - **`accepted` is a project convention.** Only `draft` is defined in the source lesson. Your team should confirm the values.
 - **The check reads one line.** It looks for `Status: accepted` on the line starting `Author:`. If the template changes shape, update [.github/scripts/check-intent-status.sh](../.github/scripts/check-intent-status.sh) and [.github/scripts/list-intents.sh](../.github/scripts/list-intents.sh), which the two skills use to list intents.
-- **Not tested on GitHub.** The script and the YAML syntax were checked locally. The workflow itself has not run on GitHub yet.
+- **Only the passing path has run on GitHub.** The workflow passed on PRs #1 and #2. Its failing path, a draft intent in a PR, has been tested locally only.

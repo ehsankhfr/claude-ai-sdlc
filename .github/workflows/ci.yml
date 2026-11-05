@@ -1,0 +1,30 @@
+name: ci
+
+# The mechanical evidence for a change: lint, tests and build, run the way
+# CLAUDE.md tells a session to run them ("Verifying your work"). A reviewer
+# reads the check run instead of re-running, and "first-pass CI success rate
+# for agent-written changes" is read from this workflow's history.
+# Runs on every PR and push to main (no path filter), like intent-status, so it
+# can be a required status check without leaving unrelated PRs waiting.
+# GitHub sets CI=true, which makes `npm run build` fail on any warning.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --watchAll=false
+      - run: npm run build

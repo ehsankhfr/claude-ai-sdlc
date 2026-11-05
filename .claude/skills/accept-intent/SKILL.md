@@ -16,6 +16,7 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
 
 1. **Pick the intent.** The argument is a slug or a path. With no argument, run `bash .github/scripts/list-intents.sh` and show the table. It is the same table `/draft-spec` shows, so both skills describe the same state. Offer the intents whose **Next** column says `/accept-intent <slug>` and ask which one. Don't guess, even when there is only one. For an intent the table sends elsewhere, say where.
    - If it already says `Status: accepted`, say so and stop. Point to what comes next: `/draft-spec <slug>` if it is accepted on main, or merging its PR first if it is not on main yet.
+   - An intent still in its first PR (from `capture-intent`) is not in a checkout of `main`. Check out that PR's branch first (`gh pr checkout <number>`), then run this skill.
 
 2. **Confirm who is deciding.** Ask the user to confirm they are acting as the product owner for this intent. You cannot verify it. Real enforcement is `CODEOWNERS` and branch protection, and docs/intent-approval.md says whether those are set up. If the user is also the intent's author, tell them GitHub will not let an author approve their own PR, so a second code owner must.
 
@@ -45,7 +46,7 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
 
    You may propose a disposition and say why. You may not choose one, and you may not answer a question yourself. If the answer isn't in the intent or given by the product owner, it is not known. Ask a few questions at a time, not a questionnaire. If the product owner says "do as you can", propose dispositions and edits for their review. That is not confirmation.
 
-6. **Apply agreed edits.** Edit `intent.md` only for what the product owner agreed: answers folded in, wording corrected, constraints moved. Keep the edit small, keep the Status as `draft` for now, and re-run the readiness check. Repeat steps 4 to 6 until the verdict is Ready or the product owner stops.
+6. **Apply agreed edits.** Edit `intent.md` only for what the product owner agreed: answers folded in, wording corrected, constraints moved. Keep the edit small, keep the Status as `draft` for now, and re-run the readiness check. Repeat steps 4 to 6 until the verdict is Ready or the product owner stops. Land each round of edits as a PR before the turn ends (step 8, part A), so they are never only in the working copy.
 
 7. **Present the decision.** When the verdict is Ready, show:
    - the readiness table with every check's result
@@ -54,20 +55,21 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
    - what accepting changes: the exact `Author:` line before and after, and the diff of anything else
    - what happens next: the PR, the merge as the decision, and that Stage 2 (`/draft-spec`) starts from the accepted text
 
-   Then ask one plain question: **"Do you accept this intent into Design, and do you want me to commit it on a branch and open a PR?"** Do not ask it while the verdict is Not ready. In that case say what is blocking and offer to keep working.
+   Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. Then ask one plain question: **"Do you accept this intent into Design?"** Do not ask it while the verdict is Not ready. In that case say what is blocking and offer to keep working.
 
-8. **Only on an explicit yes, record it.** A yes is the product owner clearly agreeing to the question in step 7, after they saw the result. None of these count: the original request to run this skill, "looks good" about one section, "do as you can", or silence. If they hesitate, ask what is missing or leave it as `draft`.
-   - Create a branch `accept/<slug>` from the main branch. If the edits from step 6 are already on a branch, use that one.
-   - Change `Status: draft` to `Status: accepted` on the `Author:` line and **nothing else on that line**, so the check script keeps reading it.
-   - Run `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md`. It must pass.
-   - Show `git diff`, then commit with a message that states the decision, the dispositions, and any advisory notes left open.
-   - If a remote exists, push and open a PR into main. Its description lists the open questions carried to Design and the advisory notes. If there is no remote, say so and stop at the local commit.
+8. **Land every change as a PR. Set accepted only on an explicit yes.** These are two separate things.
+   - **A. The PR, always.** Whenever this skill has changed `intent.md`, land it before the turn ends, following "How skill changes land" in `CLAUDE.md`. Branch `accept/<slug>`, or `intent/<slug>` if `origin/intent/<slug>` exists because the intent is still in its first PR. Commit `intent.md` alone. Open a **draft** PR, or add a commit to the one that exists. The description lists the open questions and their dispositions so far. This happens whatever the product owner decided, so agreed edits are never left in the working copy.
+   - **B. The status, only on a yes.** A yes is the product owner clearly agreeing to the question in step 7, after they saw the result. None of these count: the original request to run this skill, "looks good" about one section, "do as you can", or silence. If they hesitate, ask what is missing or leave it as `draft`. On a yes:
+     - Change `Status: draft` to `Status: accepted` on the `Author:` line and **nothing else on that line**, so the check script keeps reading it.
+     - Run `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md`. It must pass.
+     - Show `git diff`, then commit on the same branch with a message that states the decision, the dispositions, and any advisory notes left open.
+     - Push, mark the PR ready (`gh pr ready`), and update its description to list the open questions carried to Design and the advisory notes.
 
-9. **Stop there.** Do not merge. The merge is the acceptance, and it belongs to the product owner (and a second code owner if the author is the product owner). Tell them how: merge the PR, or if there is no remote, the local merge command and that it records an author and timestamp but no separate reviewer.
+9. **Stop there.** Do not merge. The merge is the acceptance, and it belongs to the product owner (and a second code owner if the author is the product owner). Tell them how: review and merge the PR. If there is no remote, say the change has not landed (see `CLAUDE.md`). A local merge would record an author and timestamp but no separate reviewer.
 
 ## If the product owner does not accept
 
-Change nothing beyond edits they agreed, and leave `Status: draft`. Rejecting means closing the PR with a reason (see `docs/intent-approval.md`). If they want, draft that comment for them. Do not close a PR yourself unless asked.
+Change nothing beyond edits they agreed, and leave `Status: draft`. Those edits are already in the draft PR (step 8, part A), so nothing is lost. Rejecting means closing that PR with a reason (see `docs/intent-approval.md`). If they want, draft that comment for them. Do not close a PR yourself unless asked.
 
 ## Rules
 
@@ -76,7 +78,7 @@ Change nothing beyond edits they agreed, and leave `Status: draft`. Rejecting me
 - **Don't soften the check to get a yes.** Report what fails. Don't downgrade a blocking finding to advisory because it is inconvenient. If the product owner disagrees with a finding, they can fix the text or reclassify the question. If they still want to accept past a blocking finding, tell them you won't mark it accepted and that they can set the status in the PR themselves. That is their call, and it is visible in Git.
 - **Capture intent, not design.** Never add architecture, technology or tasks while editing. Design is Stage 2.
 - **Edit the minimum.** Meaning changes only when the product owner says so. Show the diff.
-- **Never push, open a PR or merge on your own.** Step 8 asks for the PR in the same question. The merge is never yours.
+- **Every change to the intent ends in a PR, and the merge is never yours.** Landing the PR is part of this skill (step 8, part A) and needs no separate ask. Merging, and closing a PR, are not part of it.
 
 ## Report template
 
