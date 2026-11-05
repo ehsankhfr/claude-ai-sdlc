@@ -8,10 +8,14 @@ The shared, version-controlled home for `intent.md` files. This is where the AI-
 intent/
   <change-slug>/
     intent.md      # Stage 1: what is wanted, why, under which constraints
-    spec.md        # Stage 2 (later): derived from intent.md
+    spec.md        # Stage 2: requirements and design, derived from an accepted intent.md
 ```
 
 One folder per change, so the artifact chain stays together next to the code derived from it.
+
+## What happens after acceptance
+
+Once an intent is accepted, anyone with Claude access runs `/draft-spec <change-slug>` to produce `spec.md`. The skill refuses to run on an intent that is not accepted. Full detail: [docs/spec-creation.md](../docs/spec-creation.md).
 
 ## How an intent gets here
 

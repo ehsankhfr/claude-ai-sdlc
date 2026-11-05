@@ -62,7 +62,7 @@ Author: <name> (<team>). Status: draft.
 intent/
   <change-slug>/
     intent.md      # created here
-    spec.md        # Stage 2, later
+    spec.md        # Stage 2, see spec-creation.md
 ```
 
 Use a short kebab-case slug, one folder per change, for example `claims-status-self-service`. A worked example is [intent/claims-status-self-service/intent.md](../intent/claims-status-self-service/intent.md).
