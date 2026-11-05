@@ -87,6 +87,7 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
     - Every step cites at least one requirement. A step that cites none is scope the spec did not ask for. Remove it, or raise it as a spec gap.
     - Every path under Files that change exists, or is marked `(new)`, or is marked "location not yet identified" with its concern.
     - Steps that cannot start are marked `Blocked: concern N`, and the unblocked steps are ordered so work can begin without them.
+    - Each file line names the step that touches it. Steps that share no file and do not depend on each other get different stream letters (A, B), so the engineer can run them in separate worktrees (see `docs/parallel-sessions.md`). Steps that share a file stay in one stream. If everything shares a file, say there is one stream. Do not split work to make it look parallel.
 
 13. **Hand it back.** Lead with what is blocked and by which concern, then what you assumed, then what the reader must decide. Ask them to correct anything misunderstood, and apply the corrections to the same file. The engineer who will build it reviews the plan against the spec, line by line.
 
@@ -136,12 +137,12 @@ Short enough to review against the spec line by line. R numbers and concern numb
 From: [spec.md](spec.md), accepted at <short commit hash>. Status: draft.
 
 ## Files that change
-<One line each: path, then (new) or what changes. "Location not yet identified (concern N)" where the spec does not say.>
+<One line each: path, then (new) or what changes, then the step number. "Location not yet identified (concern N)" where the spec does not say.>
 
 ## Order of work
-1. <step> (R1, R2).
-2. <step> (R4). Blocked: concern N.
-3. ...
+1. <step> (R1, R2). Stream A.
+2. <step> (R4). Stream A. Blocked: concern N.
+3. <step> (R5). Stream B.
 
 ## Risks
 <Each carried concern: its number, the steps it affects, what closes it, owner.>
