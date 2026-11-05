@@ -57,15 +57,16 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
 
    You may propose a disposition and say why. You may not choose one, and you may not answer a concern yourself. If the answer isn't in the spec or given by the product owner, it is not known. Ask a few at a time, not a questionnaire, and restate how you read each answer before editing so an answer cannot land on the wrong concern. "Do as you can" is not confirmation.
 
-   Apply only the agreed edits to `spec.md`, in place. Keep `Status: draft`, show the diff, and re-run step 5. Repeat until the verdict is Ready or the product owner stops. Do not edit `intent.md`: if the intent is wrong, the fix is a new intent PR.
+   Apply only the agreed edits to `spec.md`, in place. Keep `Status: draft`, show the diff, and re-run step 5. Repeat until the verdict is Ready or the product owner stops. Land each round of edits as a PR before the turn ends (step 8, part A), so they are never only in the working copy. Do not edit `intent.md`: if the intent is wrong, the fix is a new intent PR.
 
-7. **Present the decision.** When the verdict is Ready, show the readiness table, each concern's disposition and what the plan cannot start until it is closed, the advisory notes, the exact `From:` line before and after, and what happens next (the PR, the merge as the decision, then `/accept-spec <slug>` again for the plan). Then ask one plain question: **"Do you accept this spec into Build, and do you want me to commit it on a branch and open a PR?"** Do not ask it while the verdict is Not ready. Say what is blocking and offer to keep working.
+7. **Present the decision.** When the verdict is Ready, show the readiness table, each concern's disposition and what the plan cannot start until it is closed, the advisory notes, the exact `From:` line before and after, and what happens next (the PR, the merge as the decision, then `/accept-spec <slug>` again for the plan). Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. Then ask one plain question: **"Do you accept this spec into Build?"** Do not ask it while the verdict is Not ready. Say what is blocking and offer to keep working.
 
-8. **Only on an explicit yes, record it, then stop.** A yes is the product owner clearly agreeing to the question in step 7 after seeing the result. None of these count: the original request to run this skill, "looks good" about one section, "do as you can", or silence.
-   - Branch `accept-spec/<slug>` from main. If the step 6 edits are already on a branch, use that one.
-   - Change `Status: draft` to `Status: accepted` on the `From:` line and **nothing else on that line**.
-   - Run `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md` again, then show `git diff`.
-   - Commit with a message that states the decision, the dispositions and any advisory notes left open. If a remote exists, push and open a PR into main whose description lists the concerns carried to the plan. If there is no remote, say so and stop at the local commit.
+8. **Land every change as a PR. Set accepted only on an explicit yes, then stop.** These are two separate things.
+   - **A. The PR, always.** Whenever this skill has changed `spec.md`, land it before the turn ends, following "How skill changes land" in `CLAUDE.md`. Branch `accept-spec/<slug>`. Commit `spec.md` alone. Open a **draft** PR, or add a commit to the one that exists. The description lists each concern's disposition so far. This happens whatever the product owner decided, so agreed edits are never left in the working copy.
+   - **B. The status, only on a yes.** A yes is the product owner clearly agreeing to the question in step 7 after seeing the result. None of these count: the original request to run this skill, "looks good" about one section, "do as you can", or silence. On a yes:
+     - Change `Status: draft` to `Status: accepted` on the `From:` line and **nothing else on that line**.
+     - Run `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md` again, then show `git diff`.
+     - Commit on the same branch with a message that states the decision, the dispositions and any advisory notes left open. Push, mark the PR ready (`gh pr ready`), and update its description to list the concerns carried to the plan.
    - **Do not merge.** The merge is the acceptance and belongs to the product owner (and a second code owner if they authored the spec). Rejecting means closing the PR with a reason. Offer to draft that comment. Do not close a PR yourself unless asked.
 
 ## Phase B: turn the accepted spec into a plan
@@ -89,9 +90,9 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
     - Steps that cannot start are marked `Blocked: concern N`, and the unblocked steps are ordered so work can begin without them.
     - Each file line names the step that touches it. Steps that share no file and do not depend on each other get different stream letters (A, B), so the engineer can run them in separate worktrees (see `docs/parallel-sessions.md`). Steps that share a file stay in one stream. If everything shares a file, say there is one stream. Do not split work to make it look parallel.
 
-13. **Hand it back.** Lead with what is blocked and by which concern, then what you assumed, then what the reader must decide. Ask them to correct anything misunderstood, and apply the corrections to the same file. The engineer who will build it reviews the plan against the spec, line by line.
+13. **Land it as a PR.** Do this in the same turn as writing it, before you hand it back, so the plan is never only in the working copy. Follow "How skill changes land" in `CLAUDE.md`: branch `plan/<slug>`, commit `plan.md` alone, push, and open a PR into main. Never commit to main directly, never touch `spec.md` or `intent.md`, and leave `Status: draft`. Do not merge it yourself. Write no source code in this skill. Building starts after the plan is reviewed.
 
-14. **Commit only when asked.** If asked: branch `plan/<slug>` from main, commit `plan.md` alone, and open a PR into main. If local main holds commits that are not on `origin/main` and do not belong in this PR, base the branch on `origin/main`. Never commit to main directly, never touch `spec.md` or `intent.md`, and leave `Status: draft`. Write no source code in this skill. Building starts after the plan is reviewed.
+14. **Hand it back.** Give the PR link. Lead with what is blocked and by which concern, then what you assumed, then what the reader must decide. Ask them to correct anything misunderstood, and apply the corrections to the same file. Each round is a further commit on the same PR. The engineer who will build it reviews the plan against the spec, line by line.
 
 ## Rules
 
@@ -101,7 +102,7 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
 - **Don't invent.** Never import files, endpoints, systems, numbers or states from examples, other projects or memory. An unidentified location is "not yet identified" and the step that needs it is blocked.
 - **The plan adds no scope.** It says how and in what order to meet the spec's requirements. It does not change them.
 - **Edit the minimum.** Meaning changes only when the product owner says so. Show the diff.
-- **Never push, open a PR or merge on your own.** Step 8 asks for the PR in the same question. The merge is never yours.
+- **Every change to a spec or plan ends in a PR, and the merge is never yours.** Landing the PR is part of this skill (steps 8 and 13) and needs no separate ask. Merging, and closing a PR, are not part of it.
 
 ## Report template (step 7)
 

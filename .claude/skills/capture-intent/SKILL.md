@@ -18,7 +18,7 @@ Produce a reviewed `intent.md` in the originator's own terms: what is wanted, wh
    Stop when the template sections below can be filled from what was said. Anything still unknown goes under **Open questions**. Don't invent answers to fill gaps.
 3. **Write `intent/<change-slug>/intent.md`** using the template below. Use a short kebab-case slug (e.g. `claims-status-self-service`). Keep the originator's vocabulary; don't translate it into solution design.
 4. **Hand it back for correction.** Show the draft and ask the originator to fix anything misunderstood. Apply their corrections. The product owner reviews it again before it is accepted.
-5. **Commit only when asked.** Author and timestamp come from Git history. Leave `Status: draft` until the product owner accepts it.
+5. **Land it as a PR.** Do this in the same turn as step 3, before the hand-back in step 4, so the draft is never only in the working copy. Follow "How skill changes land" in `CLAUDE.md`: branch `intent/<slug>`, commit `intent.md` alone, push, and open a **draft** PR into main. `intent-status` fails on a `Status: draft` intent by design, so it cannot merge yet. Give the originator the PR link. Their corrections in step 4 are further commits on the same branch. Author and timestamp come from Git history. Leave `Status: draft`: the product owner accepts it with `/accept-intent`, which continues on this PR.
 
 ## Rules
 

@@ -14,6 +14,7 @@ State below was checked on 2026-11-05.
 | A spec comes only from an intent that is accepted on `main`, and the intent text is unchanged | [spec-creation.md](spec-creation.md) | `draft-spec`, step 2 | `spec-gate` | `intent-status`, step 2 | **No.** Same reason |
 | Only the product owner accepts an intent, by saying yes | [intent-approval.md](intent-approval.md) | `accept-intent`, steps 7 and 8 | none | none | **Not enforced.** `CODEOWNERS` has no owner |
 | A missing policy skill is "not available", never "checked and fine" | [spec-creation.md](spec-creation.md) | `draft-spec`, step 5 | none | none | **Not enforced.** Advisory only |
+| Every change a skill makes to an intent, spec or plan ends in a PR, never only in the working copy and never on `main` | [CLAUDE.md](../CLAUDE.md), "How skill changes land" | all four skills, in their last steps | none | none | **Not enforced.** Advisory only. Branch protection would stop direct pushes to `main`. |
 
 ## The pieces
 
@@ -49,6 +50,7 @@ The skill, the hook and the workflow all run the same spec gate script, so they 
 |---|---|---|
 | **Ask before `Status: accepted`.** A hook that asks the user to confirm whenever an edit sets the status. | A hook cannot verify the product owner's yes. It would add a prompt, not a check, on top of the question `accept-intent` already asks. | A decision that the extra prompt is wanted. It is small to add. |
 | **`CODEOWNERS` owner line and branch protection on `main`** | Both need the product owner's GitHub username or team, with write access, and a repo admin's go-ahead. GitHub currently reports "Branch not protected". | The product owner's GitHub name, then the settings in [intent-approval.md](intent-approval.md#branch-protection-settings). With them on, a pull request's author cannot approve it, so a second code owner is needed when the author is the product owner. |
+| **A check that a skill's change reached a PR.** For example a `Stop` hook that refuses to end a turn while `intent/` has changes that are not committed and pushed. | It cannot tell a skill's change from a person's hand edit in the IDE, so it would nag about edits the skills did not make. Not built. | A decision that the nagging is acceptable, or a way to mark skill-made changes. Branch protection ("require a pull request") is the real backstop, because it also blocks direct pushes to `main`. |
 | **Policy skills** for brand, security, compliance and UX | A skill needs one real policy as a written source of truth and a named owner. Neither exists, and the owner is "yet to be defined". Rules copied from an example would be invented policy, and `draft-spec` would treat them as binding. | One policy document and an owner for it. A security skill is the natural first one: the claims status spec's R6 (no claim data in logs, page addresses or storage) is the first rule it would back. |
 | **Enforcement that a `spec.md` is accepted before Stage 3** | Only the intent is checked today. The spec's own `Status` line has no stable format for a script to read. | Agree the `Status` line for specs, then extend the check. See [spec-creation.md](spec-creation.md#not-built-yet). |
 

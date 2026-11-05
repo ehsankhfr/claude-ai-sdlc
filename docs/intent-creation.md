@@ -25,7 +25,7 @@ You need Claude access and the `capture-intent` skill ([.claude/skills/capture-i
 2. **Brainstorm until it is concrete.** Claude asks a few analyst-style questions at a time, covering scope, users, constraints, and how success would be measured. Answer briefly. "Not sure" is a valid answer.
 3. **Claude writes the draft** to `intent/<change-slug>/intent.md` using the template. Anything still unknown is listed under **Open questions**. Claude does not invent answers to fill gaps. If you say "do as you can", it writes the draft immediately with the gaps listed.
 4. **Correct the draft.** Read it and fix anything Claude misunderstood. Claude applies your corrections.
-5. **Hand it to the product owner.** Commit it on a branch and open a PR. The product owner reviews it from there (see [intent-approval.md](intent-approval.md)). Author and timestamp come from Git.
+5. **Hand it to the product owner.** Claude has already committed it on a branch `intent/<change-slug>` and opened a draft PR, in the same turn as writing it. Your corrections in step 4 are further commits on that PR. The draft PR shows a failing `intent-status` check, by design, until the product owner accepts it. The product owner reviews it from there (see [intent-approval.md](intent-approval.md)). Author and timestamp come from Git.
 
 ## What goes in each section
 

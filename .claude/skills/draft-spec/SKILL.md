@@ -41,9 +41,9 @@ The product owner reviews the spec. They do not write it. Your job is a spec eng
    - Every file, system and endpoint named exists in the intent or the repo, or is marked "not yet identified" or "proposed".
    - No task breakdown, estimates or sequencing. That is the plan in Stage 3.
 
-8. **Hand it back.** Lead with the areas of concern, then what you assumed, then what the product owner must decide. Say plainly which policy domains were not checked. Then ask the reader to correct anything misunderstood and apply the corrections.
+8. **Land it as a PR.** Do this in the same turn as writing it, before you hand it back, so the spec is never only in the working copy. Follow "How skill changes land" in `CLAUDE.md`: branch `spec/<slug>`, commit `spec.md` alone, push, and open a PR into main. A revision of an existing spec lands the same way, on a new branch. Never commit to main directly and never touch `intent.md`. Leave `Status: draft`: the product owner accepts the spec with `/accept-spec`. Do not merge it yourself.
 
-9. **Commit only when asked.** If asked: branch `spec/<slug>`, commit `spec.md` alone, open a PR into main. Never commit to main directly and never touch `intent.md`. The product owner reviews and merges. Leave `Status: draft` until they accept it.
+9. **Hand it back.** Give the PR link. Lead with the areas of concern, then what you assumed, then what the product owner must decide. Say plainly which policy domains were not checked. Then ask the reader to correct anything misunderstood and apply the corrections to the same file. Each round is a further commit on the same PR.
 
 ## Rules
 

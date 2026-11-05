@@ -29,7 +29,7 @@ The product owner can run `/accept-intent <change-slug>` ([.claude/skills/accept
 1. **Claude's readiness check passes.** Claude checks the intent against the table below and reports what is missing, citing the line.
 2. **The product owner explicitly says yes**, in the conversation, after seeing the result.
 
-Claude never accepts on its own and never merges. After the yes it sets `Status: accepted` on a branch, commits, and opens the PR if there is a remote. The product owner still merges it, and the merge is the decision.
+Claude never accepts on its own and never merges. Every edit it makes to the intent goes into a PR before the turn ends, as a draft PR until the product owner says yes, so nothing is left in a working copy. After the yes it sets `Status: accepted` on the same branch, marks the PR ready, and stops. The product owner still merges it, and the merge is the decision.
 
 | # | Check | Kind |
 |---|---|---|

@@ -17,9 +17,9 @@ The skill is [.claude/skills/draft-spec/SKILL.md](../.claude/skills/draft-spec/S
 1. Make sure you are on a current checkout of `main` with the accepted intent.
 2. Run `/draft-spec <change-slug>`, for example `/draft-spec claims-status-self-service`. Or say "draft the spec for claims-status-self-service". With no slug, Claude lists accepted intents that have no spec yet.
 3. Claude checks the gate, reads the intent and the codebase, finds and applies the organization's policy skills, and writes `intent/<change-slug>/spec.md`.
-4. Claude reports back, with the areas of concern first, what it assumed, and what the product owner must decide.
-5. Correct anything misunderstood. Claude applies the corrections to the same file.
-6. Ask Claude to commit it on a branch `spec/<change-slug>` and open a PR. Git records the author and timestamp.
+4. Claude commits `spec.md` on a branch `spec/<change-slug>` and opens a PR, in the same turn and before it reports back, so the spec is never only a local file. Git records the author and timestamp.
+5. Claude reports back with the PR link, the areas of concern first, what it assumed, and what the product owner must decide.
+6. Correct anything misunderstood. Claude applies the corrections to the same file, as further commits on the same PR.
 
 ## What Claude does and doesn't do
 

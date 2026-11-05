@@ -24,7 +24,12 @@ Stage 1 Intent → Stage 2 Design (spec) → Stage 3 Build (plan mode; `plan.md`
 - **Approved means merged into `main` with `Status: accepted`.** The merge is the decision. `Status` lives on the `Author:` line of `intent.md` (`Author: <name> (<team>). Status: draft.`). `check-intent-status.sh`, `list-intents.sh` and the `intent-status` workflow all grep that one line. If you change the template shape, update both scripts.
 - A spec's `Status` lives on its `From:` line, not `Author:`. Nothing in CI reads it yet; `accept-spec` checks it inline. A plan comes only from a spec accepted on `main`.
 - Subagents in `.claude/agents/`: `verifier` (runs tests, build and app, then the plan's Proof; reports only) and `researcher` (read-only "what exists today"). Parallel sessions, one worktree each: see `docs/parallel-sessions.md`. A new worktree has no `node_modules` (run `npm ci`), and two dev servers need different ports (`PORT=3001 npm start`).
-- Branch names: `accept/<slug>` for intent acceptance, `spec/<slug>` for specs, `accept-spec/<slug>` for spec acceptance, `plan/<slug>` for plans. Open a PR into `main`; never commit to `main` directly.
+- **Every change a skill makes to `intent.md`, `spec.md` or `plan.md` ends in a PR into `main` before the turn ends.** It is never left only in the working copy, and never committed to `main`. The skill does this itself as its last step, so it needs no separate ask. It never merges. **How skill changes land:**
+  1. `git fetch origin`. Branch from `origin/main`, named for the skill: `intent/<slug>` for a captured intent, `accept/<slug>` for intent acceptance, `spec/<slug>` for a spec, `accept-spec/<slug>` for spec acceptance, `plan/<slug>` for a plan. If that branch or an open PR for it already exists, add a commit to it instead of starting another. If the name was used by a merged PR, add a suffix such as `-2`.
+  2. Commit only the files the skill changed. If local `main` holds commits that are not on `origin/main` and do not belong in the PR, build the commit in a temporary worktree based on `origin/main`, so the PR holds only this change.
+  3. Push, then open the PR into `main` with `gh pr create`. Use `--draft` while it is not asking for a merge decision: an intent still at `Status: draft` (`intent-status` fails on it by design), or an acceptance PR before the product owner's yes.
+  4. Tell the user the PR link, which branch the checkout is on, and who has to merge it.
+  5. If there is no remote, or `gh` is not signed in, say plainly that the change has **not landed** and stop at the local commit on the branch.
 - `spec.md` is derived from the text of `intent.md` **on `main`**, not a working copy with uncommitted edits. A `PreToolUse` hook (`.claude/hooks/spec-gate.sh`, registered in `.claude/settings.json`) blocks any Edit or Write to a `spec.md` until `check-spec-gate.sh` passes, and the `intent-status` workflow runs the same script on PRs. If the hook blocks you, run `/accept-intent`; do not work around it.
 
 ## Things Claude gets wrong here
@@ -33,5 +38,5 @@ Stage 1 Intent → Stage 2 Design (spec) → Stage 3 Build (plan mode; `plan.md`
 - `draft-spec` never edits `intent.md`. If the intent looks wrong, raise it as an area of concern; the fix is a new intent PR.
 - Do not invent systems, endpoints, numbers or states. If the intent or repo does not say, write "not yet identified" or carry it as an open question. The claim status source system is currently unidentified.
 - A missing policy skill (brand, security, compliance, UX) is "not available", never "checked and fine".
-- Commit, push or open PRs only when asked. Do not overwrite an existing `spec.md`; revise it in place.
+- Apart from the skills' own PR step above, commit, push or open PRs only when asked. That covers docs, scripts, skills, hooks and source code. Do not overwrite an existing `spec.md`; revise it in place.
 - `.github/CODEOWNERS` still has the owner line commented out and `main` has no branch protection (checked 2026-11-05), so nothing enforces product owner review yet. `docs/enforcement.md` lists what is and is not enforced.
