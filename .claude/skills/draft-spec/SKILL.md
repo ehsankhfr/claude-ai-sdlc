@@ -13,7 +13,7 @@ The product owner reviews the spec. They do not write it. Your job is a spec eng
 
 1. **Pick the intent.** The argument is a slug (`claims-status-self-service`) or a path. With no argument, run `bash .github/scripts/list-intents.sh` and show the table. It is the same table `/accept-intent` shows, so both skills describe the same state. Offer the intents whose **Next** column says `/draft-spec <slug>` (accepted on main, no `spec.md`) and ask which one. Don't guess, even when there is only one. For an intent the table sends elsewhere, say where: a draft goes to `/accept-intent <slug>`, and one accepted only on a branch needs its PR merged first. Intents that already have a `spec.md` are not offered, except to revise (step 3).
 
-2. **Gate: the intent must be accepted.** Both checks must pass, otherwise stop:
+2. **Gate: the intent must be accepted.** Run `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md`. It performs both checks below. It is the same script that the `.claude/hooks/spec-gate.sh` hook runs before any write to a `spec.md`, and that the `intent-status` workflow runs on pull requests, so skipping this step does not get a spec past the gate. Both checks must pass, otherwise stop:
    - `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md` passes. This is the same rule CI uses (`Status: accepted` on the `Author:` line).
    - The accepted text is the text on the main branch: `git show main:intent/<slug>/intent.md` exists and also has `Status: accepted`, and the working copy has no uncommitted change to `intent.md` (`git status --porcelain -- intent/<slug>/intent.md` is empty). If they differ, say so and stop. The spec must be derived from what the product owner approved.
 

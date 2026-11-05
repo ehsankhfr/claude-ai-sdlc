@@ -1,6 +1,7 @@
 name: intent-status
 
-# Blocks merging an intent that is not "Status: accepted".
+# Blocks merging an intent that is not "Status: accepted", and a spec.md whose
+# intent is not accepted on the base branch.
 # Runs on every PR and push to main (no path filter), so it can be a required
 # status check without leaving unrelated PRs waiting on a check that never runs.
 on:
@@ -36,3 +37,28 @@ jobs:
           fi
 
           echo "$files" | xargs -d '\n' bash .github/scripts/check-intent-status.sh
+
+      # The same check the draft-spec skill and the .claude/hooks/spec-gate.sh
+      # hook run. The hook cannot see a spec written by a shell command, so this
+      # catches anything that reached the branch another way.
+      - name: Check specs come from accepted intents
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            # Only specs added or changed in this PR, checked against the PR's base.
+            files=$(git diff --name-only --diff-filter=AM "$BASE_SHA"...HEAD -- 'intent/*/spec.md')
+            base="$BASE_SHA"
+          else
+            # Everything on main: each spec's intent must be accepted there.
+            files=$(git ls-files 'intent/*/spec.md')
+            base=HEAD
+          fi
+
+          if [ -z "$files" ]; then
+            echo "No spec files to check."
+            exit 0
+          fi
+
+          echo "$files" | xargs -d '\n' bash .github/scripts/check-spec-gate.sh --base "$base"

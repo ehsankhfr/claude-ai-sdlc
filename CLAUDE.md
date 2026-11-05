@@ -14,6 +14,7 @@ A working example of an AI-native SDLC: planning artifacts (`intent.md`, `spec.m
 - Lint: there is no lint script. ESLint (`react-app` config in `package.json`) runs inside `npm start` and `npm run build`.
 - List intents and what to run next: `bash .github/scripts/list-intents.sh`
 - Check an intent is accepted (same rule as CI): `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md`
+- Check a spec may be written (same rule as the hook and CI): `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md`
 
 ## The intent workflow (read multiple files to see it)
 
@@ -22,7 +23,7 @@ Stage 1 Intent → Stage 2 Design (spec) → Stage 3 Build (plan mode; `plan.md`
 - Skills in `.claude/skills/`: `capture-intent` (idea → `intent.md`), `accept-intent` (product owner's readiness check and decision), `draft-spec` (accepted intent → `spec.md`). Detail in `docs/intent-creation.md`, `docs/intent-approval.md`, `docs/spec-creation.md`.
 - **Approved means merged into `main` with `Status: accepted`.** The merge is the decision. `Status` lives on the `Author:` line of `intent.md` (`Author: <name> (<team>). Status: draft.`). `check-intent-status.sh`, `list-intents.sh` and the `intent-status` workflow all grep that one line. If you change the template shape, update both scripts.
 - Branch names: `accept/<slug>` for acceptance, `spec/<slug>` for specs. Open a PR into `main`; never commit to `main` directly.
-- `spec.md` is derived from the text of `intent.md` **on `main`**, not a working copy with uncommitted edits.
+- `spec.md` is derived from the text of `intent.md` **on `main`**, not a working copy with uncommitted edits. A `PreToolUse` hook (`.claude/hooks/spec-gate.sh`, registered in `.claude/settings.json`) blocks any Edit or Write to a `spec.md` until `check-spec-gate.sh` passes, and the `intent-status` workflow runs the same script on PRs. If the hook blocks you, run `/accept-intent`; do not work around it.
 
 ## Things Claude gets wrong here
 
