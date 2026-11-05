@@ -88,6 +88,7 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
     - Every step cites at least one requirement. A step that cites none is scope the spec did not ask for. Remove it, or raise it as a spec gap.
     - Every path under Files that change exists, or is marked `(new)`, or is marked "location not yet identified" with its concern.
     - Steps that cannot start are marked `Blocked: concern N`, and the unblocked steps are ordered so work can begin without them.
+    - Every Proof line is a target a session can check without asking anyone: a command from the "Verifying your work" section of `CLAUDE.md` (or a named test), plus the pass condition (for example "`npm test -- --watchAll=false -t "<name>"` passes"). "Works as expected" and "looks right" are not targets. Where the only way to check is a screen and no screenshot tool is wired in, say it cannot be proven yet and why. The `verifier` subagent runs these lines in a fresh context, so write each one so a reader with no other context can run it.
     - Each file line names the step that touches it. Steps that share no file and do not depend on each other get different stream letters (A, B), so the engineer can run them in separate worktrees (see `docs/parallel-sessions.md`). Steps that share a file stay in one stream. If everything shares a file, say there is one stream. Do not split work to make it look parallel.
 
 13. **Land it as a PR.** Do this in the same turn as writing it, before you hand it back, so the plan is never only in the working copy. Follow "How skill changes land" in `CLAUDE.md`: branch `plan/<slug>`, commit `plan.md` alone, push, and open a PR into main. Never commit to main directly, never touch `spec.md` or `intent.md`, and leave `Status: draft`. Do not merge it yourself. Write no source code in this skill. Building starts after the plan is reviewed.
@@ -149,5 +150,5 @@ From: [spec.md](spec.md), accepted at <short commit hash>. Status: draft.
 <Each carried concern: its number, the steps it affects, what closes it, owner.>
 
 ## Proof
-<The test or check for each requirement, citing R numbers. Say which cannot be proven yet and why.>
+<For each requirement, citing R numbers: the command or named test, and the pass condition. Say which cannot be proven yet and why.>
 ```

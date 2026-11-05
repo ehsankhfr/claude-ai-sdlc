@@ -9,12 +9,24 @@ A working example of an AI-native SDLC: planning artifacts (`intent.md`, `spec.m
 ## Commands
 
 - Dev server: `npm start` (http://localhost:3000)
-- Build: `npm run build`
-- Tests: `npm test` (watch mode). Single run: `npm test -- --watchAll=false`. Single test: `npm test -- --watchAll=false -t "renders learn react link"` or pass a file path.
-- Lint: there is no lint script. ESLint (`react-app` config in `package.json`) runs inside `npm start` and `npm run build`.
+- Single test: `npm test -- --watchAll=false -t "renders learn react link"`, or pass a file path.
 - List intents and what to run next: `bash .github/scripts/list-intents.sh`
 - Check an intent is accepted (same rule as CI): `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md`
 - Check a spec may be written (same rule as the hook and CI): `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md`
+
+## Verifying your work
+
+Run all three before reporting any task complete, and paste the output. Check against a stated target ("all tests pass", "the endpoint returns 200"), not "looks right".
+
+- Lint: `npm run lint`. Healthy: nothing after the `> eslint src --max-warnings 0` header, exit 0. Any warning fails it.
+- Test: `npm test -- --watchAll=false` (plain `npm test` is watch mode and never exits). Healthy: `PASS src/App.test.js`, `Tests: 1 passed, 1 total`, exit 0.
+- Build: `npm run build`. Healthy: `File sizes after gzip:` then `The build folder is ready to be deployed.`, exit 0. A Node `DEP0176` deprecation warning above it is normal.
+
+If a test fails, fix the code, not the test. Change a test only when the requirement it covers has changed, and say so.
+
+**Bug fix:** write the failing test first, run it, confirm it fails for the expected reason, and commit it. Then fix with `CLAUDE_FIX_TASK=1` set, which makes the `test-guard` hook block every test edit. See `docs/feedback-loop.md`.
+
+No browser or screenshot tool is wired in, so a UI change cannot be checked visually yet. Say so; do not claim the screen was checked.
 
 ## The intent workflow (read multiple files to see it)
 
