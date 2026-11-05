@@ -33,7 +33,7 @@ The product owner approves an intent in Git. No separate form is needed. Full de
 
 1. **Propose:** the intent goes on a branch and a pull request is opened into the main branch. Claude can do this for people without Git experience through a GitHub connector.
 2. **Review:** the product owner reads it, corrects anything wrong (edit directly or comment on the PR), and checks that **Open questions** are acceptable to carry into Design.
-3. **Decide:**
+3. **Decide:** (the product owner can run `/accept-intent <change-slug>` to be walked through the gaps and the decision)
    - **Accept:** merge the PR. This sends the intent into Stage 2 (Design). Set `Status: accepted` as part of the merge.
    - **Reject:** close the PR without merging.
 4. **Record:** the author, timestamp, revision history and the merge or close decision live in Git history. That is the governance evidence.

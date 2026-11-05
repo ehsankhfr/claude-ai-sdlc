@@ -4,7 +4,7 @@ A `spec.md` turns an accepted intent into requirements and design that engineeri
 
 ## When it starts
 
-Only from an intent that is accepted. See [intent-approval.md](intent-approval.md): the intent is merged into `main` with `Status: accepted`. The `draft-spec` skill checks this itself and refuses to run otherwise. It will not change the status for you, because acceptance is the product owner's decision.
+Only from an intent that is accepted. See [intent-approval.md](intent-approval.md): the intent is merged into `main` with `Status: accepted`. The `draft-spec` skill checks this itself and refuses to run otherwise. It will not change the status for you, because acceptance is the product owner's decision. If the intent is still a draft, the product owner runs `/accept-intent <change-slug>` first (see [intent-approval.md](intent-approval.md#accepting-with-claude)).
 
 ## Who runs it
 

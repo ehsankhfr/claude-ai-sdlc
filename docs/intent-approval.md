@@ -22,6 +22,43 @@ Stage 2 (Design) starts only from intents on `main` with `Status: accepted`.
 4. **Merge.** Approve and merge the PR. Git records who merged it and when.
 5. **Reject instead.** If the intent should not go ahead, close the PR without merging and say why in a comment. Rejected intents stay out of `main` and need no status value.
 
+## Accepting with Claude
+
+The product owner can run `/accept-intent <change-slug>` ([.claude/skills/accept-intent/SKILL.md](../.claude/skills/accept-intent/SKILL.md)) to do steps 2 to 3 above with Claude's help. Acceptance needs **both** of these:
+
+1. **Claude's readiness check passes.** Claude checks the intent against the table below and reports what is missing, citing the line.
+2. **The product owner explicitly says yes**, in the conversation, after seeing the result.
+
+Claude never accepts on its own and never merges. After the yes it sets `Status: accepted` on a branch, commits, and opens the PR if there is a remote. The product owner still merges it, and the merge is the decision.
+
+| # | Check | Kind |
+|---|---|---|
+| B1 | All five sections are present and non-empty. The Author line names a person and team. | Blocking |
+| B2 | Every open question has a disposition chosen by the product owner, and none is a Blocker. | Blocking |
+| B3 | Problem, Outcome and Constraints do not contradict each other. | Blocking |
+| B4 | No design decision is hiding in the intent as if it were settled. | Blocking |
+| B5 | It is one outcome, or the product owner has decided on a split. | Blocking |
+| A1 | Estimates are marked as estimates. | Advisory |
+| A2 | Constraints are specific enough to check a spec against. | Advisory |
+| A3 | Unidentified systems or owners also appear as open questions. | Advisory |
+| A4 | Success can be told, or how to measure it is an open question. | Advisory |
+| A5 | It fits on one page. | Advisory |
+
+Each open question gets one disposition from the product owner:
+
+| Disposition | Meaning | Effect |
+|---|---|---|
+| Answered | The product owner supplies the answer | Folded into the intent body, question removed |
+| Carry to Design | Design will resolve it, and the product owner accepts that | Stays under Open questions. Claude states what Design cannot settle until it is answered |
+| Blocker | Must be answered before Design | The intent is not ready until it is answered or reclassified |
+
+Not every question has to be answered. An intent can be accepted with questions carried to Design, as long as the product owner has chosen that for each one.
+
+Limits:
+
+- Claude cannot verify the person is the product owner. `CODEOWNERS` and branch protection do that, and they are not set up yet (see above).
+- Claude will not mark an intent accepted over a failing blocking check. The product owner can still set the status in the PR themselves. Git shows who did.
+
 ## What the record shows
 
 - **Author and timestamp:** from the first commit.

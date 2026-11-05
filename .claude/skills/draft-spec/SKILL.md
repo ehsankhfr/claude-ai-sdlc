@@ -17,7 +17,7 @@ The product owner reviews the spec. They do not write it. Your job is a spec eng
    - `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md` passes. This is the same rule CI uses (`Status: accepted` on the `Author:` line).
    - The accepted text is the text on the main branch: `git show main:intent/<slug>/intent.md` exists and also has `Status: accepted`, and the working copy has no uncommitted change to `intent.md` (`git status --porcelain -- intent/<slug>/intent.md` is empty). If they differ, say so and stop. The spec must be derived from what the product owner approved.
 
-   If the gate fails, tell the user which check failed and that the product owner accepts an intent by merging it with `Status: accepted` (see `docs/intent-approval.md`). **Do not edit the intent's status, and do not offer to "just proceed".** Acceptance is a human decision. A spec drafted from a draft intent is out of process.
+   If the gate fails, tell the user which check failed and that the product owner accepts an intent by merging it with `Status: accepted` (see `docs/intent-approval.md`). Point them to `/accept-intent <slug>`, which closes the intent's gaps with the product owner. **Do not edit the intent's status, and do not offer to "just proceed".** Acceptance is a human decision. A spec drafted from a draft intent is out of process.
 
 3. **Don't overwrite.** If `spec.md` already exists, stop and ask whether this is a revision. A revision edits the file in place so Git keeps the history. Never replace a reviewed spec wholesale.
 
