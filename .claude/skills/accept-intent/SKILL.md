@@ -14,8 +14,8 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
 
 ## Steps
 
-1. **Pick the intent.** The argument is a slug or a path. With no argument, list the `intent/*/intent.md` files whose `Author:` line says `Status: draft` and ask which one. Don't guess.
-   - If it already says `Status: accepted`, say so and stop.
+1. **Pick the intent.** The argument is a slug or a path. With no argument, run `bash .github/scripts/list-intents.sh` and show the table. It is the same table `/draft-spec` shows, so both skills describe the same state. Offer the intents whose **Next** column says `/accept-intent <slug>` and ask which one. Don't guess, even when there is only one. For an intent the table sends elsewhere, say where.
+   - If it already says `Status: accepted`, say so and stop. Point to what comes next: `/draft-spec <slug>` if it is accepted on main, or merging its PR first if it is not on main yet.
 
 2. **Confirm who is deciding.** Ask the user to confirm they are acting as the product owner for this intent. You cannot verify it. Real enforcement is `CODEOWNERS` and branch protection, and docs/intent-approval.md says whether those are set up. If the user is also the intent's author, tell them GitHub will not let an author approve their own PR, so a second code owner must.
 

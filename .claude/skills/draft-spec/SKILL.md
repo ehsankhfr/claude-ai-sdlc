@@ -11,7 +11,7 @@ The product owner reviews the spec. They do not write it. Your job is a spec eng
 
 ## Steps
 
-1. **Pick the intent.** The argument is a slug (`claims-status-self-service`) or a path. With no argument, list the `intent/*/intent.md` files that have no `spec.md` next to them and ask which one. Don't guess.
+1. **Pick the intent.** The argument is a slug (`claims-status-self-service`) or a path. With no argument, run `bash .github/scripts/list-intents.sh` and show the table. It is the same table `/accept-intent` shows, so both skills describe the same state. Offer the intents whose **Next** column says `/draft-spec <slug>` (accepted on main, no `spec.md`) and ask which one. Don't guess, even when there is only one. For an intent the table sends elsewhere, say where: a draft goes to `/accept-intent <slug>`, and one accepted only on a branch needs its PR merged first. Intents that already have a `spec.md` are not offered, except to revise (step 3).
 
 2. **Gate: the intent must be accepted.** Both checks must pass, otherwise stop:
    - `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md` passes. This is the same rule CI uses (`Status: accepted` on the `Author:` line).

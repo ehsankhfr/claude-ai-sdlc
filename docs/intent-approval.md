@@ -102,5 +102,5 @@ Notes:
 ## Known gaps
 
 - **`accepted` is a project convention.** Only `draft` is defined in the source lesson. Your team should confirm the values.
-- **The check reads one line.** It looks for `Status: accepted` on the line starting `Author:`. If the template changes shape, update [.github/scripts/check-intent-status.sh](../.github/scripts/check-intent-status.sh).
+- **The check reads one line.** It looks for `Status: accepted` on the line starting `Author:`. If the template changes shape, update [.github/scripts/check-intent-status.sh](../.github/scripts/check-intent-status.sh) and [.github/scripts/list-intents.sh](../.github/scripts/list-intents.sh), which the two skills use to list intents.
 - **Not tested on GitHub.** The script and the YAML syntax were checked locally. The workflow itself has not run on GitHub yet.
