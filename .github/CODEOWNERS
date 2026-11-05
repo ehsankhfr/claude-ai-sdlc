@@ -1,0 +1,6 @@
+# Anything under intent/ needs the product owner's review before it can merge.
+# Pair this with branch protection "Require review from Code Owners" on main.
+#
+# TODO: replace the placeholder with the product owner's GitHub username or team
+# (the owner needs write access to this repo), then uncomment the line.
+# /intent/  @product-owner-github-username-or-team

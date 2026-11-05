@@ -1,0 +1,38 @@
+name: intent-status
+
+# Blocks merging an intent that is not "Status: accepted".
+# Runs on every PR and push to main (no path filter), so it can be a required
+# status check without leaving unrelated PRs waiting on a check that never runs.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  intent-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check intent status
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            # Only intents added or changed in this PR.
+            files=$(git diff --name-only --diff-filter=AM "$BASE_SHA"...HEAD -- 'intent/*/intent.md')
+          else
+            # Everything on main must be accepted.
+            files=$(git ls-files 'intent/*/intent.md')
+          fi
+
+          if [ -z "$files" ]; then
+            echo "No intent files to check."
+            exit 0
+          fi
+
+          echo "$files" | xargs -d '\n' bash .github/scripts/check-intent-status.sh
