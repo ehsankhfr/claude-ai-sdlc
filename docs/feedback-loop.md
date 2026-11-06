@@ -37,5 +37,5 @@ Outside a fix task the variable is not set and tests can be edited, because feat
 
 ## How it is measured
 
-- **Leading:** first-pass CI success rate for agent-written changes, read from the `ci` workflow's history once it has run on GitHub.
+- **Leading:** first-pass CI success rate for agent-written changes, read from the `ci` workflow's history. It has run once so far, on PR #3, and passed.
 - **Lagging:** review time per PR from PR metadata, which should fall as the checks catch what reviewers used to catch, and the change failure rate from an incident tracker, which this repo does not have.

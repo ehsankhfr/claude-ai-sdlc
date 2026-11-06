@@ -71,8 +71,8 @@ The skill, the hook and the workflow all run the same spec gate script, so they 
 | Test guard hook | Simulated tool input: a test file, a new test file, `setupTests.js` and `__tests__/` with the variable set (blocked, exit 2); source, a spec and `package.json` with it set, and a test file with it unset (allowed); empty input | Blocks only test files, and only in a fix session. |
 | Lint, test and build commands | Run locally, including with `CI=true` as GitHub sets it. ESLint's own exit code was checked with a deliberate warning in place. | All three exit 0 when healthy. Lint exits 1 on a warning. |
 | **Hooks firing in a live Claude session** | **Not seen yet** for either hook. The session may need a restart for `settings.json` to load, and `CLAUDE_FIX_TASK` must reach the hook's environment. | Unverified. |
-| **`ci` on GitHub** | **Not run yet.** Written and parsed as YAML, and its commands run locally. It first runs on the first pull request that carries it. Node 24 is used because that is what the commands were run on. | Unverified. |
-| **Workflow step 2 on GitHub** | **Not run yet.** It first runs on the first pull request from `enforce/spec-gate`. | Unverified. |
+| `ci` on GitHub | Ran on PR #3 (`enforce/spec-gate`) on Node 24.22.2: `npm ci`, lint, test and build | Passed. Healthy path only, no failing run seen. GitHub warned that `actions/checkout@v4` and `actions/setup-node@v4` target the deprecated Node 20. |
+| Workflow step 2 on GitHub | Ran on PR #3 | Ran and passed, but reported "No spec files to check", because the PR changes no spec. **The step has not yet judged a real spec on GitHub, and no failing run has been seen.** |
 | Branch protection | GitHub's API reports "Branch not protected" | Not set. |
 | Review on merged PRs | PRs #1 and #2 were both merged by the account that opened them, with no review recorded. Nothing required one. | A gap, shown in Git. |
 
