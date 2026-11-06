@@ -31,6 +31,8 @@ The product owner can run `/accept-intent <change-slug>` ([.claude/skills/accept
 
 Claude never accepts on its own and never merges. Every edit it makes to the intent goes into a PR before the turn ends, as a draft PR until the product owner says yes, so nothing is left in a working copy. After the yes it sets `Status: accepted` on the same branch, marks the PR ready, and stops. The product owner still merges it, and the merge is the decision.
 
+Claude also records the decision on the PR as comments: the readiness report, then a **decision record** with the question asked, the product owner's answer quoted in their own words, and the commit the answer covered. It does this whether the answer is yes or no. The comment is posted from whichever account `gh` is signed in as, and it quotes a conversation. It is a record of what was said, not an approval the product owner gave on GitHub.
+
 | # | Check | Kind |
 |---|---|---|
 | B1 | All five sections are present and non-empty. The Author line names a person and team. | Blocking |
@@ -57,6 +59,7 @@ Not every question has to be answered. An intent can be accepted with questions 
 Limits:
 
 - Claude cannot verify the person is the product owner. `CODEOWNERS` and branch protection do that, and they are not set up yet (see above).
+- The decision record on the PR is Claude's note of a conversation. Until `CODEOWNERS` names the product owner, nothing on GitHub shows who actually said yes. The next step is for the product owner to decide with their own PR comment, which GitHub does authenticate. That is listed in [enforcement.md](enforcement.md#not-done-yet).
 - Claude will not mark an intent accepted over a failing blocking check. The product owner can still set the status in the PR themselves. Git shows who did.
 
 ## What the record shows
@@ -64,6 +67,7 @@ Limits:
 - **Author and timestamp:** from the first commit.
 - **Corrections:** the revision history of `intent.md`, including the product owner's edits.
 - **Decision:** the merge, or the closed PR, with the reviewer and time.
+- **The answer:** Claude's decision record on the PR. It quotes the question, the answer and the commit it covered. It is not verified (see Limits).
 
 This is the governance evidence. The survival rate (merged intents against closed ones) is read from the same record.
 

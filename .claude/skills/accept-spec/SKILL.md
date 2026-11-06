@@ -59,7 +59,7 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
 
    Apply only the agreed edits to `spec.md`, in place. Keep `Status: draft`, show the diff, and re-run step 5. Repeat until the verdict is Ready or the product owner stops. Land each round of edits as a PR before the turn ends (step 8, part A), so they are never only in the working copy. Do not edit `intent.md`: if the intent is wrong, the fix is a new intent PR.
 
-7. **Present the decision.** When the verdict is Ready, show the readiness table, each concern's disposition and what the plan cannot start until it is closed, the advisory notes, the exact `From:` line before and after, and what happens next (the PR, the merge as the decision, then `/accept-spec <slug>` again for the plan). Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. Then ask one plain question: **"Do you accept this spec into Build?"** Do not ask it while the verdict is Not ready. Say what is blocking and offer to keep working.
+7. **Present the decision.** When the verdict is Ready, show the readiness table, each concern's disposition and what the plan cannot start until it is closed, the advisory notes, the exact `From:` line before and after, and what happens next (the PR, the merge as the decision, then `/accept-spec <slug>` again for the plan). Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. If a PR for this spec is open, post the report on it now as a comment (template below, headed with the PR's head commit from `gh pr view <pr> --json headRefOid`). Tell the product owner you will record the report and their answer on the PR as comments, and that the record is Claude's, not their own approval on GitHub. Then ask one plain question: **"Do you accept this spec into Build?"** Do not ask it while the verdict is Not ready. Say what is blocking and offer to keep working.
 
 8. **Land every change as a PR. Set accepted only on an explicit yes, then stop.** These are two separate things.
    - **A. The PR, always.** Whenever this skill has changed `spec.md`, land it before the turn ends, following "How skill changes land" in `CLAUDE.md`. Branch `accept-spec/<slug>`. Commit `spec.md` alone. Open a **draft** PR, or add a commit to the one that exists. The description lists each concern's disposition so far. This happens whatever the product owner decided, so agreed edits are never left in the working copy.
@@ -67,7 +67,8 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
      - Change `Status: draft` to `Status: accepted` on the `From:` line and **nothing else on that line**.
      - Run `bash .github/scripts/check-spec-gate.sh intent/<slug>/spec.md` again, then show `git diff`.
      - Commit on the same branch with a message that states the decision, the dispositions and any advisory notes left open. Push, mark the PR ready (`gh pr ready`), and update its description to list the concerns carried to the plan.
-   - **Do not merge.** The merge is the acceptance and belongs to the product owner (and a second code owner if they authored the spec). Rejecting means closing the PR with a reason. Offer to draft that comment. Do not close a PR yourself unless asked.
+   - **C. The record, always.** Once they have answered, post a decision comment on the PR (template below), whatever the answer was. Write the body to a file outside the repo and post it with `gh pr comment <pr> --body-file <file>`. Take the login from `gh api user --jq .login`. Quote their answer in their own words. Never paraphrase it into a yes. Do this after part B, so the comment can name the status commit. If the report was not posted for the PR's current head commit, put it in this comment. If they stop without answering, post nothing beyond the report. If `gh` cannot post, say the decision has **not** been recorded on the PR and give them the text to paste.
+   - **Do not merge.** The merge is the acceptance and belongs to the product owner (and a second code owner if they authored the spec). Rejecting means closing the PR with a reason, and the decision comment above carries their answer and reason. Offer to draft the closing comment. If they ask you to close it, use `gh pr close <pr> --comment "<their reason>"`. Do not close a PR yourself unless asked.
 
 ## Phase B: turn the accepted spec into a plan
 
@@ -103,6 +104,7 @@ Acceptance needs **two things together**: Claude's readiness check passes, and t
 - **Don't invent.** Never import files, endpoints, systems, numbers or states from examples, other projects or memory. An unidentified location is "not yet identified" and the step that needs it is blocked.
 - **The plan adds no scope.** It says how and in what order to meet the spec's requirements. It does not change them.
 - **Edit the minimum.** Meaning changes only when the product owner says so. Show the diff.
+- **The PR comment is a record, not an approval.** Posting it never sets the status. It is posted from whichever account `gh` is signed in as, and it quotes a conversation, so GitHub has not verified who answered. Never word it as the product owner's own comment, and never write that they approved on GitHub.
 - **Every change to a spec or plan ends in a PR, and the merge is never yours.** Landing the PR is part of this skill (steps 8 and 13) and needs no separate ask. Merging, and closing a PR, are not part of it.
 
 ## Report template (step 7)
@@ -128,6 +130,25 @@ Verdict: <Ready | Not ready: n blocking>
 - Before: `From: <...>. Status: draft.`
 - After:  `From: <...>. Status: accepted.`
 - Other edits: <diff summary or "none">
+```
+
+## Decision comment template (step 8, part C)
+
+```markdown
+## Decision record: <slug>
+Posted by Claude with `gh` as <login>, from a conversation. The answer below is quoted. GitHub did not verify who gave it.
+
+| | |
+| :-- | :-- |
+| Question asked | "Do you accept this spec into Build?" |
+| Answer | "<their words>" |
+| Taken as | Accepted / Declined / Hesitated |
+| Said to be acting as | <name and role they gave, or "not stated">  |
+| Readiness | <Ready / Not ready: n blocking>, checked against `<PR head commit>` |
+| Result | `Status: accepted` set in `<commit>` / `Status` left as `draft` |
+| Carried to the plan | <areas of concern and what the plan cannot start until each is closed, or "none"> |
+
+<If the readiness report was not posted for this commit, it goes here, from the report template.>
 ```
 
 ## plan.md template (step 11)

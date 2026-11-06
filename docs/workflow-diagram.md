@@ -5,8 +5,8 @@ How one change moves from an idea to merged code, who decides at each point, and
 State below was checked on 2026-11-06.
 
 **How to read them**
-- Blue boxes are Claude skills. Green boxes are the artifact a skill puts in a pull request. Amber hexagons and diamonds are human decisions. Grey diamonds are checks run by a script. Red rounded boxes are stops.
-- **A skill never merges.** Every amber hexagon is a person.
+- Blue boxes are Claude skills. Green boxes are the artifact a skill puts in a pull request. Amber hexagons and diamonds are human decisions. Grey diamonds are checks run by a script. Red rounded boxes are stops and rejections.
+- **A skill never merges or closes a PR on its own.** Every amber hexagon is a person, and each one has a way to say no. See "How a person says no" below the first diagram.
 - Dashed arrows are back-steps, not the normal path.
 
 ## 1. One change, end to end
@@ -20,9 +20,9 @@ flowchart TD
     pr1["Draft PR intent/slug<br/>intent-status fails on it by design"]
     acc["/accept-intent<br/>readiness check, then the product owner<br/>chooses a disposition for each open question"]
     ok1{"Ready, and the product owner<br/>gives an explicit yes?"}
-    rej1(["Rejected: PR closed with a reason"])
+    rej1(["REJECTED: PR closed with a reason<br/>Status stays draft, never reaches main"])
     pr2["PR accept/slug<br/>Status: accepted"]
-    m1{{"Product owner merges<br/>INTENT ACCEPTED"}}
+    m1{{"Product owner decides on the PR"}}
   end
 
   subgraph S2["Stage 2: Design"]
@@ -30,12 +30,12 @@ flowchart TD
     g1{"Intent accepted on main and unchanged?<br/>check-spec-gate and the spec-gate hook"}
     stop1(["Stop: run /accept-intent first"])
     pr3["PR spec/slug<br/>spec.md, Status: draft<br/>requirements, design, areas of concern"]
-    m2{{"Product owner reviews and merges"}}
+    m2{{"Product owner reviews the spec PR"}}
     as1["/accept-spec, phase A<br/>readiness check, then the product owner<br/>chooses a disposition for each area of concern"]
     ok2{"Ready, and the product owner<br/>gives an explicit yes?"}
-    rej2(["Not accepted: PR closed or spec revised"])
+    rej2(["NOT ACCEPTED: PR closed with a reason<br/>the spec on main stays Status: draft"])
     pr4["PR accept-spec/slug<br/>Status: accepted on the From line"]
-    m3{{"Product owner merges<br/>SPEC ACCEPTED"}}
+    m3{{"Product owner decides on the PR"}}
   end
 
   subgraph S3["Stage 3: Build, planning"]
@@ -43,26 +43,47 @@ flowchart TD
     g2{"Spec accepted on main and unchanged?"}
     stop2(["Stop: finish phase A first"])
     pr5["PR plan/slug<br/>files, order of work with streams,<br/>risks, proof"]
-    m4{{"Engineer reviews the plan<br/>against the spec and merges"}}
+    m4{{"Engineer reviews the plan PR<br/>against the spec"}}
   end
 
   subgraph S4["Stage 3: Build, code and checks"]
     build["Build by stream<br/>see diagram 2"]
     pr6["PR per stream<br/>ci runs lint, test, build"]
-    m5{{"Code owner reviews and merges"}}
+    m5{{"Code owner reviews the PR"}}
   end
+
+  fin(["Change merged"])
 
   idea --> cap --> pr1 --> acc --> ok1
   ok1 -->|"gaps remain"| acc
-  ok1 -->|"product owner declines"| rej1
-  ok1 -->|"yes"| pr2 --> m1 --> ds --> g1
+  ok1 -->|"product owner says no"| rej1
+  ok1 -->|"yes"| pr2 --> m1
+  m1 -->|"merge: intent accepted"| ds
+  m1 -->|"close with a reason"| rej1
+
+  ds --> g1
   g1 -->|"no"| stop1
-  g1 -->|"yes"| pr3 --> m2 --> as1 --> ok2
+  g1 -->|"yes"| pr3 --> m2
+  m2 -->|"merge"| as1
+  m2 -.->|"changes requested: Claude revises the same file"| pr3
+
+  as1 --> ok2
   ok2 -->|"gaps remain"| as1
-  ok2 -->|"product owner declines"| rej2
-  ok2 -->|"yes"| pr4 --> m3 --> as2 --> g2
+  ok2 -->|"product owner says no"| rej2
+  ok2 -->|"yes"| pr4 --> m3
+  m3 -->|"merge: spec accepted"| as2
+  m3 -->|"close with a reason"| rej2
+  rej2 -.->|"revise the spec, then run /accept-spec again"| as1
+
+  as2 --> g2
   g2 -->|"no"| stop2
-  g2 -->|"yes"| pr5 --> m4 --> build --> pr6 --> m5
+  g2 -->|"yes"| pr5 --> m4
+  m4 -->|"merge"| build
+  m4 -.->|"changes requested: Claude revises plan.md on the same PR"| pr5
+
+  build --> pr6 --> m5
+  m5 -->|"merge"| fin
+  m5 -.->|"changes requested"| build
 
   ds -.->|"problem in the intent: a new intent PR"| cap
   as2 -.->|"problem in the spec: revise it through its own PR"| pr3
@@ -86,6 +107,23 @@ flowchart TD
 | `intent.md` | the `Author:` line | still a proposal, on a PR | merged into `main` with `Status: accepted`. CI and the scripts read this line. |
 | `spec.md` | the `From:` line | merged, but the product owner has not accepted it | the accept-spec PR is merged. Nothing in CI reads this line yet. |
 | `plan.md` | the `From:` line | always. Nobody is defined to accept a plan, and there is no gate. | not used |
+
+**How a person says no**
+
+| Where | Who | How to say no | What happens |
+|---|---|---|---|
+| Intent, `/accept-intent` | product owner | Answer no to Claude's final question, or close the PR without merging. Say why in a comment. | Claude records the answer on the PR as a comment. `Status` stays `draft` and the intent never reaches `main`. The closed PR is the record, and counts against the survival rate. |
+| Spec review | product owner | Comment on the PR and have Claude revise the same file. If the problem is in the intent, open a new intent PR. | Further commits on the same PR. The spec does not patch around a bad intent. |
+| Spec acceptance, `/accept-spec` phase A | product owner | Answer no to Claude's final question, or close the accept-spec PR with a reason. | Claude records the answer on the PR as a comment. The spec on `main` stays `draft`. Revise it, then run `/accept-spec` again. |
+| Plan review | engineer | Comment on the PR. Claude revises `plan.md` on the same PR. | Further commits on the same PR. No accept or reject gate is defined for a plan. |
+| Code | code owner | Request changes, or close the PR, as in any review. | Standard review. |
+
+Claude offers to draft the closing comment, but never closes a PR unless asked.
+
+**Not defined anywhere in the repo**
+- Rejecting a plan outright. Only "changes requested" exists.
+- Withdrawing an intent or spec after it was merged as accepted. The `intent-status` check on `main` requires every intent there to be `accepted`, so setting one back to `draft` would fail it.
+- Who may say no. `.github/CODEOWNERS` has its owner line commented out, so nothing stops anyone with write access from merging or closing these PRs. See [enforcement.md](enforcement.md).
 
 ## 2. Building from the plan
 
@@ -195,6 +233,7 @@ Dashed red boxes are controls that are written but not switched on. Until they a
           v
  /accept-intent ----------> readiness check; product owner decides, explicit yes
           |                  PR          accept/<slug>
+          |                  NO? close the PR with a reason: REJECTED, stays draft, never on main
           v
  [MERGE: INTENT ACCEPTED]    by the product owner
           |
@@ -203,10 +242,13 @@ Dashed red boxes are controls that are written but not switched on. Until they a
           |                  PR          spec/<slug>     (Status: draft)
           v
  [MERGE]                     product owner reviews the areas of concern first
+          |                  changes requested? Claude revises the same file on the same PR
           |
           v
  /accept-spec  phase A ---> readiness check; product owner decides, explicit yes
           |                  PR          accept-spec/<slug>
+          |                  NO? close the PR with a reason: spec stays draft on main,
+          |                      revise it, then run /accept-spec again
           v
  [MERGE: SPEC ACCEPTED]      by the product owner
           |
@@ -215,6 +257,7 @@ Dashed red boxes are controls that are written but not switched on. Until they a
           |                  PR          plan/<slug>     (plan.md)
           v
  [MERGE: PLAN REVIEWED]      engineer checks it against the spec, line by line
+          |                  changes requested? Claude revises plan.md on the same PR
           |
           v
  build, one worktree per stream
@@ -224,6 +267,7 @@ Dashed red boxes are controls that are written but not switched on. Until they a
           |
           v
  [MERGE]                     code owner reviews the diff
+                             changes requested? back to the build step
 
  Back-steps: a problem in the intent is a new intent PR. A problem in the spec found
  while planning is a revision of the spec through its own PR. A plan never patches

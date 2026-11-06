@@ -55,7 +55,7 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
    - what accepting changes: the exact `Author:` line before and after, and the diff of anything else
    - what happens next: the PR, the merge as the decision, and that Stage 2 (`/draft-spec`) starts from the accepted text
 
-   Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. Then ask one plain question: **"Do you accept this intent into Design?"** Do not ask it while the verdict is Not ready. In that case say what is blocking and offer to keep working.
+   Say that the agreed edits are already in a draft PR, and that only a yes sets `Status: accepted`. If a PR for this intent is open, post the report on it now as a comment (template below, headed with the PR's head commit from `gh pr view <pr> --json headRefOid`). Tell the product owner you will record the report and their answer on the PR as comments, and that the record is Claude's, not their own approval on GitHub. Then ask one plain question: **"Do you accept this intent into Design?"** Do not ask it while the verdict is Not ready. In that case say what is blocking and offer to keep working.
 
 8. **Land every change as a PR. Set accepted only on an explicit yes.** These are two separate things.
    - **A. The PR, always.** Whenever this skill has changed `intent.md`, land it before the turn ends, following "How skill changes land" in `CLAUDE.md`. Branch `accept/<slug>`, or `intent/<slug>` if `origin/intent/<slug>` exists because the intent is still in its first PR. Commit `intent.md` alone. Open a **draft** PR, or add a commit to the one that exists. The description lists the open questions and their dispositions so far. This happens whatever the product owner decided, so agreed edits are never left in the working copy.
@@ -64,12 +64,13 @@ Neither is enough alone. A passing check is not a decision, and a product owner'
      - Run `bash .github/scripts/check-intent-status.sh intent/<slug>/intent.md`. It must pass.
      - Show `git diff`, then commit on the same branch with a message that states the decision, the dispositions, and any advisory notes left open.
      - Push, mark the PR ready (`gh pr ready`), and update its description to list the open questions carried to Design and the advisory notes.
+   - **C. The record, always.** Once they have answered, post a decision comment on the PR (template below), whatever the answer was. Write the body to a file outside the repo and post it with `gh pr comment <pr> --body-file <file>`. Take the login from `gh api user --jq .login`. Quote their answer in their own words. Never paraphrase it into a yes. Do this after part B, so the comment can name the status commit. If the report was not posted for the PR's current head commit, put it in this comment. If they stop without answering, post nothing beyond the report. If `gh` cannot post, say the decision has **not** been recorded on the PR and give them the text to paste.
 
 9. **Stop there.** Do not merge. The merge is the acceptance, and it belongs to the product owner (and a second code owner if the author is the product owner). Tell them how: review and merge the PR. If there is no remote, say the change has not landed (see `CLAUDE.md`). A local merge would record an author and timestamp but no separate reviewer.
 
 ## If the product owner does not accept
 
-Change nothing beyond edits they agreed, and leave `Status: draft`. Those edits are already in the draft PR (step 8, part A), so nothing is lost. Rejecting means closing that PR with a reason (see `docs/intent-approval.md`). If they want, draft that comment for them. Do not close a PR yourself unless asked.
+Change nothing beyond edits they agreed, and leave `Status: draft`. Those edits are already in the draft PR (step 8, part A), so nothing is lost. Post the decision comment (step 8, part C) with their answer and their reason, so the decline is on the PR. Rejecting means closing that PR with a reason (see `docs/intent-approval.md`). If they want, draft that closing comment for them. If they ask you to close it, use `gh pr close <pr> --comment "<their reason>"`. Do not close a PR yourself unless asked.
 
 ## Rules
 
@@ -78,6 +79,7 @@ Change nothing beyond edits they agreed, and leave `Status: draft`. Those edits 
 - **Don't soften the check to get a yes.** Report what fails. Don't downgrade a blocking finding to advisory because it is inconvenient. If the product owner disagrees with a finding, they can fix the text or reclassify the question. If they still want to accept past a blocking finding, tell them you won't mark it accepted and that they can set the status in the PR themselves. That is their call, and it is visible in Git.
 - **Capture intent, not design.** Never add architecture, technology or tasks while editing. Design is Stage 2.
 - **Edit the minimum.** Meaning changes only when the product owner says so. Show the diff.
+- **The PR comment is a record, not an approval.** Posting it never sets the status. It is posted from whichever account `gh` is signed in as, and it quotes a conversation, so GitHub has not verified who answered. Never word it as the product owner's own comment, and never write that they approved on GitHub.
 - **Every change to the intent ends in a PR, and the merge is never yours.** Landing the PR is part of this skill (step 8, part A) and needs no separate ask. Merging, and closing a PR, are not part of it.
 
 ## Report template
@@ -103,4 +105,23 @@ Verdict: <Ready | Not ready: n blocking>
 - Before: `Author: <...>. Status: draft.`
 - After:  `Author: <...>. Status: accepted.`
 - Other edits: <diff summary or "none">
+```
+
+## Decision comment template (step 8, part C)
+
+```markdown
+## Decision record: <slug>
+Posted by Claude with `gh` as <login>, from a conversation. The answer below is quoted. GitHub did not verify who gave it.
+
+| | |
+| :-- | :-- |
+| Question asked | "Do you accept this intent into Design?" |
+| Answer | "<their words>" |
+| Taken as | Accepted / Declined / Hesitated |
+| Said to be acting as | <name and role they gave, or "not stated"> |
+| Readiness | <Ready / Not ready: n blocking>, checked against `<PR head commit>` |
+| Result | `Status: accepted` set in `<commit>` / `Status` left as `draft` |
+| Carried to Design | <open questions, or "none"> |
+
+<If the readiness report was not posted for this commit, it goes here, from the report template.>
 ```

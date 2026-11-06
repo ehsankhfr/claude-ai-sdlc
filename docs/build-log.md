@@ -15,6 +15,7 @@ All of it is on the branch `enforce/spec-gate`. Only `CLAUDE.md` is on `main`.
 | Feedback loop | `npm run lint` script in [package.json](../package.json), the "Verifying your work" block in CLAUDE.md | `5e05568` | The repo had no lint command. A session needs one command each for lint, test and build, with a known healthy output. |
 | Feedback loop | [test-guard hook](../.claude/hooks/test-guard.sh), registered in [settings.json](../.claude/settings.json) | `5e05568` | An agent fixing code must not be able to weaken the test that checks it. |
 | Feedback loop | [ci workflow](../.github/workflows/ci.yml), [feedback-loop.md](feedback-loop.md), rows in [enforcement.md](enforcement.md) | `cc0c6e9` | The PR's check run is where the reviewer and any later auditor read the evidence. |
+| Decision record | Step 8 part C of [accept-intent](../.claude/skills/accept-intent/SKILL.md) and [accept-spec](../.claude/skills/accept-spec/SKILL.md): the readiness report and the product owner's answer, yes or no, posted on the PR as comments | not committed yet | The product owner's yes lived only in a chat transcript, and Git showed just the merge. The comment puts it next to the diff, labelled as Claude's unverified record. |
 | Guide | [README.md](README.md) and this page | not committed yet | One place that says how to use all of it. |
 
 ## How each piece works, in a line
@@ -61,6 +62,7 @@ All of it is on the branch `enforce/spec-gate`. Only `CLAUDE.md` is on `main`.
 | Permission allowlist so sessions do not wait on prompts | The organization names the commands it treats as safe. `/fewer-permission-prompts` can propose a list from past transcripts. |
 | `npm audit` findings in `react-scripts` 5.0.1's dependencies | A decision on `react-scripts`, and whether `ci` should audit. |
 | `CODEOWNERS` owner line and branch protection on `main` | The product owner's GitHub name, then the settings in [intent-approval.md](intent-approval.md#branch-protection-settings). Until then `intent-status` and `ci` are not required checks. |
+| The product owner decides with their own PR comment, checked by a workflow | The product owner's GitHub login in `CODEOWNERS`, then the workflow described in [enforcement.md](enforcement.md#not-done-yet). The decision record exists but has never been posted: neither skill has run since the change. |
 | `list-intents.sh` does not offer `/accept-spec` | Add the case to the script's "Next" column. Both older skills rely on that script, so it needs care. |
 | Enforcement that a spec is accepted before Stage 3, and a check that a fix PR did not touch existing tests | See [enforcement.md](enforcement.md#not-done-yet). |
 | GitHub warns that `actions/checkout@v4` and `actions/setup-node@v4` target the deprecated Node 20 | Move both actions to a release that targets a supported Node. Not changed. |
